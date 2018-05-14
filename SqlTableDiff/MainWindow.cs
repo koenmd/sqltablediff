@@ -17,120 +17,123 @@ using System.Diagnostics;
 
 namespace SqlTableDiff
 {
-	public partial class MainWindow : Form
-	{
-		public MainWindow()
-		{
-			InitializeComponent();
+    public partial class MainWindow : Form
+    {
 
-			LoadDefaults();
+        private System.Data.SqlClient.SqlConnection _connectionSrc = null;
 
-			OutFolderDlg.SelectedPath = OutFolderTxt.Text;
+        public MainWindow()
+        {
+            InitializeComponent();
 
-			SrcAuthBinding.DataSource = SrcAuthSqlOpt;
-			DestAuthBinding.DataSource = DestAuthSqlOpt;
-		}
+            LoadDefaults();
 
-		#region Default Values
+            OutFolderDlg.SelectedPath = OutFolderTxt.Text;
 
-		private void LoadDefaults()
-		{
-			LoadDefaultsSource();
-			LoadDefaultsDestination();
-			LoadDefaultsOutput();
-			LoadDefaultsTables();
-			LoadDefaultsOptions();
-		}
+            SrcAuthBinding.DataSource = SrcAuthSqlOpt;
+            DestAuthBinding.DataSource = DestAuthSqlOpt;
+        }
 
-		void LoadDefaultsSource()
-		{
-		   var val = Defaults.Source.Default;
+        #region Default Values
 
-			SrcServerTxt.Text = val.Server;
-			if (val.AuthType.Trim().ToLower() == Diff.DbAuthType.Windows.ToString().ToLower())
-				SrcAuthWinOpt.Checked = true;
-			else
-				SrcAuthSqlOpt.Checked = true;
-			SrcUserTxt.Text = val.AuthUser;
-			SrcPassTxt.Text = val.AuthPass;
-			SrcDatabaseTxt.Text = val.DbName;
-			SrcSchemaTxt.Text = val.DbSchema;
-		}
+        private void LoadDefaults()
+        {
+            LoadDefaultsSource();
+            LoadDefaultsDestination();
+            LoadDefaultsOutput();
+            LoadDefaultsTables();
+            LoadDefaultsOptions();
+        }
 
-		void LoadDefaultsDestination()
-		{
-			var val = Defaults.Destination.Default;
+        void LoadDefaultsSource()
+        {
+            var val = Defaults.Source.Default;
 
-			DestServerTxt.Text = val.Server;
-			
-			if (val.AuthType.Trim().ToLower() == Diff.DbAuthType.Windows.ToString().ToLower())
-				DestAuthWinOpt.Checked = true;
-			else
-				DestAuthSqlOpt.Checked = true;
-			DestUserTxt.Text = val.AuthUser;
-			DestPassTxt.Text = val.AuthPass;
-			DestDatabaseTxt.Text = val.DbName;
-			DestSchemaTxt.Text = val.DbSchema;
-		}
+            SrcServerTxt.Text = val.Server;
+            if (val.AuthType.Trim().ToLower() == Diff.DbAuthType.Windows.ToString().ToLower())
+                SrcAuthWinOpt.Checked = true;
+            else
+                SrcAuthSqlOpt.Checked = true;
+            SrcUserTxt.Text = val.AuthUser;
+            SrcPassTxt.Text = val.AuthPass;
+            SrcDatabaseTxt.Text = val.DbName;
+            SrcSchemaTxt.Text = val.DbSchema;
+        }
 
-		void LoadDefaultsOutput()
-		{
- 			var val = Defaults.Output.Default;
+        void LoadDefaultsDestination()
+        {
+            var val = Defaults.Destination.Default;
 
-			var folder = System.IO.Path.Combine(App.ExeFolderLocation, val.Folder);
-			System.Diagnostics.Debug.Print("Output Folder: " + folder);
-			OutFolderTxt.Text = folder;
+            DestServerTxt.Text = val.Server;
 
-			OutScriptSingleFileChk.Checked = val.SingleScript;
-		}
+            if (val.AuthType.Trim().ToLower() == Diff.DbAuthType.Windows.ToString().ToLower())
+                DestAuthWinOpt.Checked = true;
+            else
+                DestAuthSqlOpt.Checked = true;
+            DestUserTxt.Text = val.AuthUser;
+            DestPassTxt.Text = val.AuthPass;
+            DestDatabaseTxt.Text = val.DbName;
+            DestSchemaTxt.Text = val.DbSchema;
+        }
 
-		void LoadDefaultsTables()
-		{
- 			var val = Defaults.Tables.Default;
+        void LoadDefaultsOutput()
+        {
+            var val = Defaults.Output.Default;
 
-			// Turn the comma delimited list of tables into a NewLine delimited list.
-			var tables = val.DefaultList
-				.Split(new char[]{ ',' }, StringSplitOptions.RemoveEmptyEntries)
-				.Select(r => r.Trim())
-				.Aggregate((agg, r) => agg + Environment.NewLine + r);
+            var folder = System.IO.Path.Combine(App.ExeFolderLocation, val.Folder);
+            System.Diagnostics.Debug.Print("Output Folder: " + folder);
+            OutFolderTxt.Text = folder;
 
-			TablesTxt.Text = tables;
-		}
+            OutScriptSingleFileChk.Checked = val.SingleScript;
+        }
 
-		void LoadDefaultsOptions()
-		{
- 			var val = Defaults.AdvancedOptions.Default;
+        void LoadDefaultsTables()
+        {
+            var val = Defaults.Tables.Default;
 
-			OptColCompareChk.Checked = val.ColumCompare;
-			OptStrictSchemaChk.Checked = val.SchemaStrict;
-			OptFastCompareChk.Checked = val.FastCompare;
+            // Turn the comma delimited list of tables into a NewLine delimited list.
+            var tables = val.DefaultList
+                .Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(r => r.Trim())
+                .Aggregate((agg, r) => agg + Environment.NewLine + r);
 
-			OptLargeObjBytesTxt.Text = val.LargeObjectBytes;
-			OptConnectTimeoutTxt.Text = val.ConnectTimeout;
-			OptRetryCountTxt.Text = val.RetryCount;
-			OptRetryIntervalTxt.Text = val.RetryInterval;
-		}
+            TablesTxt.Text = tables;
+        }
 
-		#endregion
+        void LoadDefaultsOptions()
+        {
+            var val = Defaults.AdvancedOptions.Default;
 
-		#region Menu
+            OptColCompareChk.Checked = val.ColumCompare;
+            OptStrictSchemaChk.Checked = val.SchemaStrict;
+            OptFastCompareChk.Checked = val.FastCompare;
 
-		void FileExitItm_Click(object sender, EventArgs e)
-		{
-			Close();
-		}
+            OptLargeObjBytesTxt.Text = val.LargeObjectBytes;
+            OptConnectTimeoutTxt.Text = val.ConnectTimeout;
+            OptRetryCountTxt.Text = val.RetryCount;
+            OptRetryIntervalTxt.Text = val.RetryInterval;
+        }
 
-		void HelpAboutItm_Click(object sender, EventArgs e)
-		{
-			MessageBox.Show(
+        #endregion
+
+        #region Menu
+
+        void FileExitItm_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
+
+        void HelpAboutItm_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(
 @"Sql Table Diff Utility 1.0
 
 Author(s): Wayne Bloss", "About", MessageBoxButtons.OK, MessageBoxIcon.Information);
-		}
+        }
 
-		void HelpInstructItm_Click(object sender, EventArgs e)
-		{
-			MessageBox.Show(
+        void HelpInstructItm_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(
 @"          Sql Table Diff Utility 1.0
 
 This tool will show the differences in a list of tables between
@@ -157,219 +160,351 @@ the Open Report File button.
 changed by editing the SqlTableDiff.exe.config file.)
 
 ",
-			"Help", MessageBoxButtons.OK, MessageBoxIcon.Information);
-		}
+            "Help", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
 
-		#endregion
+        #endregion
 
-		#region Output
+        #region Output
 
-		private void OutFolderBtn_Click(object sender, EventArgs e)
-		{
-			if (OutFolderDlg.ShowDialog(this) != System.Windows.Forms.DialogResult.OK) return;
-			OutFolderTxt.Text = OutFolderDlg.SelectedPath;
-		}
+        private void OutFolderBtn_Click(object sender, EventArgs e)
+        {
+            if (OutFolderDlg.ShowDialog(this) != System.Windows.Forms.DialogResult.OK) return;
+            OutFolderTxt.Text = OutFolderDlg.SelectedPath;
+        }
 
-		private void OutFolderOpenBtn_Click(object sender, EventArgs e)
-		{
-			if (_currentOutputFolder != null)
-				System.Diagnostics.Process.Start(_currentOutputFolder);
-			else
-			{
-				System.IO.Directory.CreateDirectory(OutFolderTxt.Text);
-				System.Diagnostics.Process.Start(OutFolderTxt.Text);
-			}
-		}
+        private void OutFolderOpenBtn_Click(object sender, EventArgs e)
+        {
+            if (_currentOutputFolder != null)
+                System.Diagnostics.Process.Start(_currentOutputFolder);
+            else
+            {
+                System.IO.Directory.CreateDirectory(OutFolderTxt.Text);
+                System.Diagnostics.Process.Start(OutFolderTxt.Text);
+            }
+        }
 
-		private void OutReportOpenBtn_Click(object sender, EventArgs e)
-		{
-			if (_currentReportFile == null) return;
-			System.Diagnostics.Process.Start(_currentReportFile);
-		}
+        private void OutReportOpenBtn_Click(object sender, EventArgs e)
+        {
+            if (_currentReportFile == null) return;
+            System.Diagnostics.Process.Start(_currentReportFile);
+        }
 
-		#endregion
+        #endregion
 
-		#region Execution
+        #region Execution
 
-		string _currentOutputFolder;
-		string _currentReportFile;
+        string _currentOutputFolder;
+        string _currentReportFile;
 
-		bool _isExecuting;
+        bool _isExecuting;
 
-		void ExecBtn_Click(object sender, EventArgs e)
-		{
-			if (_isExecuting)
-				CancelExecution();
-			else
-				Execute();
-		}
+        void ExecBtn_Click(object sender, EventArgs e)
+        {
+            if (_isExecuting)
+                CancelExecution();
+            else
+                Execute();
+        }
 
-		private void ExecPrint()
-		{
-			ExecPrint("");
-		}
+        private void ExecPrint()
+        {
+            ExecPrint("");
+        }
 
-		void ExecPrint(string value)
-		{
-			ExecInfo.AppendText(value + Environment.NewLine);
-		}
+        void ExecPrint(string value)
+        {
+            ExecInfo.AppendText(value + Environment.NewLine);
+        }
 
-		private void ExecPrintSectionEnd()
-		{
-			ExecPrint("---------------------------------------------------------------------");
-			ExecPrint();
-		}
+        private void ExecPrintSectionEnd()
+        {
+            ExecPrint("---------------------------------------------------------------------");
+            ExecPrint();
+        }
 
-		void Execute()
-		{
-			try
-			{
-				OnBeforeExecute();
-				PrepareOutputFolder();
-				Process();
-			}
-			catch(Exception ex)
-			{
-				ExecPrint("Error: " + ex.Message);
-			}
-			finally
-			{
-				OnAfterExecute();
-			}
-		}
+        void Execute()
+        {
+            try
+            {
+                OnBeforeExecute();
+                PrepareOutputFolder();
+                Process();
+            }
+            catch (Exception ex)
+            {
+                ExecPrint("Error: " + ex.Message);
+            }
+            finally
+            {
+                OnAfterExecute();
+            }
+        }
 
-		void OnBeforeExecute()
-		{
-			_isExecuting = true;
-			Cursor = Cursors.WaitCursor;
-			ExecInfo.Clear();
-			StatusLbl.Text = "Running...";
-			ExecBtn.Text = "&Cancel";
-		}
+        void OnBeforeExecute()
+        {
+            _isExecuting = true;
+            Cursor = Cursors.WaitCursor;
+            ExecInfo.Clear();
+            StatusLbl.Text = "Running...";
+            ExecBtn.Text = "&Cancel";
+        }
 
-		void OnAfterExecute()
-		{
-			var cancelled = _cancelExecution;
-			_isExecuting = false;
-			_cancelExecution = false;
+        void OnAfterExecute()
+        {
+            var cancelled = _cancelExecution;
+            _isExecuting = false;
+            _cancelExecution = false;
 
-			StatusLbl.Text = "Completed";
-			ExecBtn.Text = "&GO!";
+            StatusLbl.Text = "Completed";
+            ExecBtn.Text = "&GO!";
 
-			if (cancelled) 
-				ExecPrint("Cancelled by user.");
-			else
-				ExecPrint("Done.");
+            if (cancelled)
+                ExecPrint("Cancelled by user.");
+            else
+                ExecPrint("Done.");
 
-			Cursor = Cursors.Default;
-		}
+            Cursor = Cursors.Default;
+        }
 
-		#endregion
+        #endregion
 
-		#region Processing
+        #region Processing
 
-		void PrepareOutputFolder()
-		{
-			var now = DateTime.Now;
-			var dateName = now.Year.ToString("0000") + "_" + now.Month.ToString("00") + "_" + now.Day.ToString("00") +
-				"-" + now.Hour.ToString("00") + "_" + now.Minute.ToString("00") + "_" + now.Second.ToString("00");
+        void PrepareOutputFolder()
+        {
+            var now = DateTime.Now;
+            var dateName = now.Year.ToString("0000") + "_" + now.Month.ToString("00") + "_" + now.Day.ToString("00") +
+                "-" + now.Hour.ToString("00") + "_" + now.Minute.ToString("00") + "_" + now.Second.ToString("00");
 
-			var folder = System.IO.Path.Combine(OutFolderTxt.Text, dateName);
+            var folder = System.IO.Path.Combine(OutFolderTxt.Text, dateName);
 
-			_currentOutputFolder = folder;
-			ExecPrint("Outputing to " + folder);
-			ExecPrintSectionEnd();
-			System.IO.Directory.CreateDirectory(_currentOutputFolder);
-		}
+            _currentOutputFolder = folder;
+            ExecPrint("Outputing to " + folder);
+            ExecPrintSectionEnd();
+            System.IO.Directory.CreateDirectory(_currentOutputFolder);
+        }
 
-		void Process()
-		{
-			var proc = new Diff.Processor();
-			var src = proc.Source;
-			src.Server = SrcServerTxt.Text.Trim();
-			src.AuthType = GetDbAuthType(SrcAuthWinOpt);
-			src.AuthUser = SrcUserTxt.Text.Trim();
-			src.AuthPass = SrcPassTxt.Text.Trim();
-			src.Name = SrcDatabaseTxt.Text.Trim();
-			src.Schema = SrcSchemaTxt.Text.Trim();
+        void Process()
+        {
+            var proc = new Diff.Processor();
+            var src = proc.Source;
+            src.Server = SrcServerTxt.Text.Trim();
+            src.AuthType = GetDbAuthType(SrcAuthWinOpt);
+            src.AuthUser = SrcUserTxt.Text.Trim();
+            src.AuthPass = SrcPassTxt.Text.Trim();
+            src.Name = SrcDatabaseTxt.Text.Trim();
+            src.Schema = SrcSchemaTxt.Text.Trim();
 
-			var dest = proc.Destination;
-			dest.Server = DestServerTxt.Text.Trim();
-			dest.AuthType = GetDbAuthType(DestAuthWinOpt);
-			dest.AuthUser = DestUserTxt.Text.Trim();
-			dest.AuthPass = DestPassTxt.Text.Trim();
-			dest.Name = DestDatabaseTxt.Text.Trim();
-			dest.Schema = DestSchemaTxt.Text.Trim();
+            var dest = proc.Destination;
+            dest.Server = DestServerTxt.Text.Trim();
+            dest.AuthType = GetDbAuthType(DestAuthWinOpt);
+            dest.AuthUser = DestUserTxt.Text.Trim();
+            dest.AuthPass = DestPassTxt.Text.Trim();
+            dest.Name = DestDatabaseTxt.Text.Trim();
+            dest.Schema = DestSchemaTxt.Text.Trim();
 
-			proc.OutputFolder = _currentOutputFolder;
+            proc.OutputFolder = _currentOutputFolder;
 
-			var opt = proc.Options;
-			opt.ColumnCompare = OptColCompareChk.Checked;
-			opt.StrictSchema = OptStrictSchemaChk.Checked;
-			opt.FastCompare = OptFastCompareChk.Checked;
-			opt.LargeObjectBytes = GetNullableInt(OptLargeObjBytesTxt);
-			opt.ConnectTimeout = GetNullableInt(OptConnectTimeoutTxt);
-			opt.RetryCount = GetNullableInt(OptRetryCountTxt);
-			opt.RetryInterval = GetNullableInt(OptRetryIntervalTxt);
+            var opt = proc.Options;
+            opt.ColumnCompare = OptColCompareChk.Checked;
+            opt.StrictSchema = OptStrictSchemaChk.Checked;
+            opt.FastCompare = OptFastCompareChk.Checked;
+            opt.LargeObjectBytes = GetNullableInt(OptLargeObjBytesTxt);
+            opt.ConnectTimeout = GetNullableInt(OptConnectTimeoutTxt);
+            opt.RetryCount = GetNullableInt(OptRetryCountTxt);
+            opt.RetryInterval = GetNullableInt(OptRetryIntervalTxt);
 
-			ProcessTables(proc);
-		}
+            ProcessTables(proc);
+        }
 
-		void ProcessTables(Diff.Processor proc)
-		{
-			var list = TablesTxt.Text.Split(new string[]{ Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+        void ProcessTables(Diff.Processor proc)
+        {
+            var list = TablesTxt.Text.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 
-			foreach (var item in list)
-			{
-				if (Cancelled()) return;
-				ExecPrint("Table " + item + " being processed...");
-				ExecPrint();
+            foreach (var item in list)
+            {
+                if (Cancelled()) return;
+                ExecPrint("Table " + item + " being processed...");
+                ExecPrint();
 
-				proc.TableName = item;
-				proc.Execute();
-				_currentReportFile = proc.ReportFile;
+                proc.TableName = item;
+                proc.Execute();
+                _currentReportFile = proc.ReportFile;
 
-				ExecPrint(proc.StandardOutput);
-				ExecPrint("Table " + item + " result: " + proc.ExitStatus);
-				ExecPrintSectionEnd();
-			}
-		}
+                ExecPrint(proc.StandardOutput);
+                ExecPrint("Table " + item + " result: " + proc.ExitStatus);
+                ExecPrintSectionEnd();
+            }
+        }
 
-		Diff.DbAuthType GetDbAuthType(RadioButton winAuthOption)
-		{
-			return winAuthOption.Checked ? Diff.DbAuthType.Windows : Diff.DbAuthType.Sql;
-		}
+        Diff.DbAuthType GetDbAuthType(RadioButton winAuthOption)
+        {
+            return winAuthOption.Checked ? Diff.DbAuthType.Windows : Diff.DbAuthType.Sql;
+        }
 
-		int? GetNullableInt(TextBox box)
-		{
-			var txt = box.Text.Trim();
-			if (txt.Length > 0)
-			{
-				int result;
-				if (int.TryParse(txt, out result)) return result;
-			}
-			return null;
-		}
+        int? GetNullableInt(TextBox box)
+        {
+            var txt = box.Text.Trim();
+            if (txt.Length > 0)
+            {
+                int result;
+                if (int.TryParse(txt, out result)) return result;
+            }
+            return null;
+        }
 
-		#endregion
+        #endregion
 
-		#region Cancellation
+        #region Cancellation
 
-		bool _cancelExecution;
+        bool _cancelExecution;
 
-		void CancelExecution()
-		{
-			if (_cancelExecution) return; // (already cancelled.)
-			ExecPrint("Cancelling...");
-			_cancelExecution = true;
-		}
+        void CancelExecution()
+        {
+            if (_cancelExecution) return; // (already cancelled.)
+            ExecPrint("Cancelling...");
+            _cancelExecution = true;
+        }
 
-		bool Cancelled()
-		{
-			Application.DoEvents();
-			return _cancelExecution;
-		}
+        bool Cancelled()
+        {
+            Application.DoEvents();
+            return _cancelExecution;
+        }
 
-		#endregion
-	}
+        #endregion
+
+        private void btnConnect_Click(object sender, EventArgs e)
+        {
+            if (_connectionSrc != null)
+            {
+                try
+                {
+                    if (_connectionSrc.State == ConnectionState.Open)
+                    {
+                        _connectionSrc.Close();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "Exception", buttons: MessageBoxButtons.OK, icon: MessageBoxIcon.Error);
+                }
+                finally
+                {
+                    _connectionSrc.Dispose();
+                    _connectionSrc = null;
+                }
+            }
+
+            Trace.WriteLine(GetConnectionString());
+            _connectionSrc = new System.Data.SqlClient.SqlConnection(GetConnectionString());
+            _connectionSrc.Open();
+
+            RefreshDatabaseList();
+            RefreshTableList();
+
+        }
+
+        private void RefreshTableList()
+        {
+            if (_connectionSrc != null && _connectionSrc.State == ConnectionState.Open)
+            {
+                DataTable dt = _connectionSrc.GetSchema("Tables", new string[] { null, null, null, "BASE TABLE" });
+                DataView view = new DataView(dt);
+                view.Sort = "TABLE_TYPE ASC, TABLE_SCHEMA ASC, TABLE_NAME ASC";
+
+                if (view.Count > 0)
+                {
+                    clbTables.Items.Clear();
+                    foreach (DataRowView row in view)
+                    {
+                        if (row["TABLE_TYPE"].ToString() == "BASE TABLE")
+                        {
+                            if (row["TABLE_SCHEMA"].ToString() == SrcSchemaTxt.Text)
+                            {
+                                clbTables.Items.Add(row["TABLE_NAME"].ToString());
+                            }
+                        }
+                    }
+
+                }
+
+            }
+        }
+
+        private void RefreshDatabaseList()
+        {
+            if (_connectionSrc != null && _connectionSrc.State == ConnectionState.Open)
+            {
+                DataTable dt = _connectionSrc.GetSchema("Databases");
+                DataView view = new DataView(dt);
+                view.Sort = "database_name ASC";
+                if(view.Count > 0)
+                {
+                    SrcCboDatabases.Items.Clear();
+                    foreach(DataRowView row in view)
+                    {
+                        SrcCboDatabases.Items.Add(row["database_name"].ToString());
+                    }
+                }
+            }
+        }
+
+        private string GetConnectionString()
+        {
+            List<Exception> lstExceptions = new List<Exception>();
+            if (!string.IsNullOrWhiteSpace(SrcServerTxt.Text))
+            {
+                if (SrcAuthWinOpt.Checked)
+                {
+                    return string.Format("Integrated Security=SSPI;Persist Security Info=True;Initial Catalog={0};Data Source={1}", SrcDatabaseTxt.Text, SrcServerTxt.Text);
+                }
+                if (SrcAuthSqlOpt.Checked)
+                {
+                    if (!string.IsNullOrWhiteSpace(SrcUserTxt.Text) && !string.IsNullOrWhiteSpace(SrcPassTxt.Text))
+                    {
+                        return string.Format("Persist Security Info=True;User ID={0};Password={1};Initial Catalog={2};Data Source={3};", SrcUserTxt.Text, SrcPassTxt.Text, SrcDatabaseTxt.Text, SrcServerTxt.Text);
+                    }
+                }
+
+            }
+            else
+            {
+                Exception ex = new Exception("Fill out server name please");
+                lstExceptions.Add(ex);
+            }
+
+            if (lstExceptions != null && lstExceptions.Count > 0)
+            {
+                foreach (Exception ex in lstExceptions)
+                    throw ex;
+            }
+
+            return "";
+        }
+
+        private void SrcServerTxt_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void MainWindow_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void MainWindow_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if(_connectionSrc != null)
+            {
+                if (_connectionSrc.State == ConnectionState.Open)
+                {
+                    _connectionSrc.Close();
+                }
+                _connectionSrc.Dispose();
+                _connectionSrc = null;
+            }
+        }
+    }
 }
